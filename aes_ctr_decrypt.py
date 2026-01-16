@@ -1,0 +1,68 @@
+import os
+from aes_utils import AESUtils
+
+
+class AES_CTR_Decrypt:
+    def __init__(self, key):
+        self.utils = AESUtils(key)
+        self.block_size = 16
+
+    def _generate_keystream_block(self, nonce, counter_value):
+        counter_block = self.utils.create_counter_block(nonce, counter_value)
+
+        print(f"  Counter block {counter_value}: {counter_block.hex()}")
+
+        keystream_block = self.utils.encrypt_block(counter_block)
+        print(f"  Keystream block {counter_value}: {keystream_block.hex()}")
+
+        return keystream_block
+
+    def decrypt(self, nonce, ciphertext):
+        print(f"\n=== CTR DECRYPTION PROCESS ===")
+        print(f"Ciphertext: {ciphertext.hex()}")
+        print(f"Nonce: {nonce.hex()}")
+
+        num_blocks = (len(ciphertext) + self.block_size - 1) // self.block_size
+        print(f"Number of blocks: {num_blocks}")
+
+        plaintext = b''
+
+        for i in range(num_blocks):
+            print(f"\n--- Block {i + 1} ---")
+
+            start_idx = i * self.block_size
+            end_idx = min(start_idx + self.block_size, len(ciphertext))
+            ciphertext_block = ciphertext[start_idx:end_idx]
+
+            print(f"  Ciphertext block: {ciphertext_block.hex()}")
+
+            keystream_block = self._generate_keystream_block(nonce, i)
+
+            plaintext_block = self.utils.xor_bytes(ciphertext_block, keystream_block)
+
+            print(f"  XOR result: {plaintext_block.hex()}")
+            print(f"  Plaintext: {plaintext_block}")
+
+            plaintext += plaintext_block
+
+        print(f"\nFinal plaintext: {plaintext}")
+        return plaintext
+
+
+if __name__ == "__main__":
+    from aes_ctr_encrypt import AES_CTR_Encrypt
+
+    key = os.urandom(32)
+    print(f"AES Key: {key.hex()}")
+
+    encryptor = AES_CTR_Encrypt(key)
+    decryptor = AES_CTR_Decrypt(key)
+
+    message = b"This message spans multiple AES blocks to demonstrate CTR chaining!"
+    print(f"\nOriginal message: {message}")
+
+    nonce, ciphertext = encryptor.encrypt(message)
+    decrypted = decryptor.decrypt(nonce, ciphertext)
+
+    assert message == decrypted
+    print("\n✓ CTR mode encryption/decryption successful!")
