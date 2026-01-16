@@ -1,0 +1,112 @@
+# Claude Session Summary: AES CTR vs GCM Educational Implementation
+
+## Initial Request
+User requested implementations of AES GCM and AES CTR modes in separate files with minimal differences to understand the code-level differences between the two modes.
+
+## Evolution of Implementation
+
+### Phase 1: High-Level Abstractions
+- Created `aes_ctr.py` and `aes_gcm.py` using cryptography library's built-in modes
+- Created `comparison.py` to demonstrate differences
+- Files showed functional differences but hid the underlying block cipher operations
+
+### Phase 2: Educational Block-Level Implementation
+User noted the abstractions were "too abstracted from the details to be educational" and wanted to see how the base AES block cipher is chained together.
+
+- Created `aes_ctr_educational.py` - Shows step-by-step CTR operation:
+  - Counter block construction (nonce + counter)
+  - AES encryption of each counter → keystream blocks
+  - XOR of keystream with plaintext blocks
+  - Counter increment between blocks
+
+- Created `aes_gcm_educational.py` - Shows GCM components:
+  - Authentication key generation: H = AES_K(0^128)
+  - CTR encryption (identical to CTR mode)
+  - GHASH computation with Galois field multiplication
+  - Tag generation: AES_K(J₀) ⊕ GHASH(H, AAD, C)
+
+- Created `educational_comparison.py` for side-by-side analysis
+
+### Phase 3: Code Simplification
+User requested removing excessive comments to reduce code volume:
+- Removed docstrings and multi-line comments
+- Kept essential code logic and print statements
+- Maintained educational step-by-step output
+
+### Phase 4: Refactoring for Maintainability
+User requested factoring out common portions into shared library:
+- Created `aes_utils.py` with shared utilities:
+  - `encrypt_block()` - Core AES block encryption
+  - `increment_counter_32()` - 32-bit counter increment (GCM)
+  - `create_counter_block()` - Counter block construction
+  - `xor_bytes()` - XOR operation
+  - `pad_to_block()` - Block padding
+- Refactored both educational files to use shared utilities
+- Fixed Pylance diagnostic (unused loop variable)
+- Removed unused `increment_counter_128()` method
+
+### Phase 5: Separation of Concerns
+User requested separating encryption and decryption into separate files:
+- Split into focused files:
+  - `aes_ctr_encrypt.py` - CTR encryption only
+  - `aes_ctr_decrypt.py` - CTR decryption only
+  - `aes_gcm_encrypt.py` - GCM encryption + authentication
+  - `aes_gcm_decrypt.py` - GCM decryption + verification
+- Updated `educational_comparison.py` to use new structure
+- Deleted original files (`aes_ctr.py`, `aes_gcm.py`, `comparison.py`)
+
+## Final File Structure
+```
+aes-gcm/
+├── aes_utils.py              # Shared AES utilities
+├── aes_ctr_encrypt.py        # CTR encryption implementation
+├── aes_ctr_decrypt.py        # CTR decryption implementation
+├── aes_gcm_encrypt.py        # GCM encryption + auth implementation
+├── aes_gcm_decrypt.py        # GCM decryption + verification implementation
+├── educational_comparison.py  # Side-by-side comparison
+├── CLAUDE.md                 # Setup instructions
+└── claude_session.txt        # This summary
+```
+
+## Key Educational Insights Demonstrated
+
+### CTR Mode Process:
+1. Generate nonce
+2. For each block:
+   - Create counter block (nonce + counter)
+   - Encrypt counter block with AES → keystream
+   - XOR keystream with plaintext → ciphertext
+3. Output: (nonce, ciphertext)
+
+### GCM Mode Process:
+1. Generate nonce
+2. Generate auth key H = AES(0^128)
+3. CTR encryption (same as above)
+4. GHASH authentication:
+   - Process associated data with H
+   - Process ciphertext with H
+   - Process length block with H
+5. Encrypt GHASH result with AES(J₀) → auth tag
+6. Output: (nonce, ciphertext, auth_tag)
+
+### Key Differences:
+- **CTR**: Just encryption via counter mode
+- **GCM**: CTR encryption + GHASH authentication
+- **GCM adds**: auth key generation, GHASH computation, tag generation
+- **GCM can authenticate associated data** without encrypting it
+- **Tampering detection**: CTR silently accepts tampered data, GCM rejects with InvalidTag
+
+## Technical Details
+- Uses cryptography library for core AES operations
+- Shows manual block-by-block processing
+- Demonstrates counter increment strategies (CTR vs GCM)
+- Shows GHASH finite field arithmetic
+- Educational print statements show intermediate values
+- Proper error handling for authentication failures
+
+## Setup Requirements
+- Python 3
+- `pip3 install cryptography`
+- Run with `python3 <filename>.py`
+
+This implementation successfully demonstrates the fundamental differences between CTR and GCM modes at the block cipher level while maintaining clean, educational code structure.
