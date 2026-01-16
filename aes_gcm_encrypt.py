@@ -72,7 +72,7 @@ class AES_GCM_Encrypt:
         print(f"  Final GHASH: {ghash_state.hex()}")
         return ghash_state
 
-    def encrypt(self, plaintext, nonce=None, associated_data=None):
+    def encrypt(self, plaintext, nonce=None):
         if nonce is None:
             nonce = os.urandom(12)
 
@@ -80,7 +80,6 @@ class AES_GCM_Encrypt:
         print(f"Plaintext: {plaintext}")
         print(f"Plaintext hex: {plaintext.hex()}")
         print(f"Nonce: {nonce.hex()}")
-        print(f"Associated data: {associated_data.hex() if associated_data else '(none)'}")
 
         print(f"\n--- Step 1: Generate Authentication Key ---")
         auth_key = self._generate_auth_key()
@@ -116,7 +115,7 @@ class AES_GCM_Encrypt:
         print(f"\n  Final ciphertext: {ciphertext.hex()}")
 
         print(f"\n--- Step 3: Authentication Tag ---")
-        ghash_result = self._ghash(auth_key, associated_data, ciphertext)
+        ghash_result = self._ghash(auth_key, None, ciphertext)
 
         tag_keystream = self.utils.encrypt_block(initial_counter)
         print(f"  Tag keystream (AES_K(J0)): {tag_keystream.hex()}")
@@ -133,9 +132,8 @@ if __name__ == "__main__":
 
     cipher = AES_GCM_Encrypt(key)
     message = b"Secret GCM message!"
-    aad = b"user123"
 
-    nonce, ciphertext, tag = cipher.encrypt(message, associated_data=aad)
+    nonce, ciphertext, tag = cipher.encrypt(message)
 
     print(f"\nEncryption complete!")
     print(f"Nonce: {nonce.hex()}")

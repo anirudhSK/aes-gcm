@@ -72,7 +72,7 @@ class AES_GCM_Decrypt:
         print(f"  Final GHASH: {ghash_state.hex()}")
         return ghash_state
 
-    def decrypt(self, nonce, ciphertext, auth_tag, associated_data=None):
+    def decrypt(self, nonce, ciphertext, auth_tag):
         print(f"\n=== GCM DECRYPTION PROCESS ===")
         print(f"Ciphertext: {ciphertext.hex()}")
         print(f"Tag: {auth_tag.hex()}")
@@ -82,7 +82,7 @@ class AES_GCM_Decrypt:
         auth_key = self._generate_auth_key()
 
         initial_counter = nonce + b'\x00\x00\x00\x01'
-        ghash_result = self._ghash(auth_key, associated_data, ciphertext)
+        ghash_result = self._ghash(auth_key, None, ciphertext)
         tag_keystream = self.utils.encrypt_block(initial_counter)
         expected_tag = self.utils.xor_bytes(ghash_result, tag_keystream)
 
@@ -124,10 +124,9 @@ if __name__ == "__main__":
     decryptor = AES_GCM_Decrypt(key)
 
     message = b"Secret GCM message!"
-    aad = b"user123"
 
-    nonce, ciphertext, tag = encryptor.encrypt(message, associated_data=aad)
-    decrypted = decryptor.decrypt(nonce, ciphertext, tag, associated_data=aad)
+    nonce, ciphertext, tag = encryptor.encrypt(message)
+    decrypted = decryptor.decrypt(nonce, ciphertext, tag)
 
     assert message == decrypted
     print("\n✓ GCM mode encryption/decryption successful!")
