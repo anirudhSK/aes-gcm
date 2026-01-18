@@ -31,27 +31,15 @@ class AES_GCM_Decrypt:
         print(f"  Authentication key H: {auth_key.hex()}")
         return auth_key
 
-    def _ghash(self, auth_key, associated_data, ciphertext):
+    def _ghash(self, auth_key, ciphertext):
         print(f"\n=== GHASH COMPUTATION ===")
 
-        padded_aad = self.utils.pad_to_block(associated_data) if associated_data else b''
         padded_ciphertext = self.utils.pad_to_block(ciphertext)
 
-        print(f"  Associated data: {associated_data.hex() if associated_data else '(none)'}")
-        print(f"  Padded AAD: {padded_aad.hex() if padded_aad else '(none)'}")
         print(f"  Ciphertext: {ciphertext.hex()}")
         print(f"  Padded ciphertext: {padded_ciphertext.hex()}")
 
         ghash_state = b'\x00' * 16
-
-        if padded_aad:
-            for i in range(0, len(padded_aad), 16):
-                aad_block = padded_aad[i:i+16]
-                print(f"  Processing AAD block: {aad_block.hex()}")
-
-                ghash_state = self.utils.xor_bytes(ghash_state, aad_block)
-                ghash_state = self._ghash_multiply(ghash_state, auth_key)
-                print(f"    GHASH state: {ghash_state.hex()}")
 
         for i in range(0, len(padded_ciphertext), 16):
             ct_block = padded_ciphertext[i:i+16]
@@ -61,9 +49,8 @@ class AES_GCM_Decrypt:
             ghash_state = self._ghash_multiply(ghash_state, auth_key)
             print(f"    GHASH state: {ghash_state.hex()}")
 
-        aad_len_bits = len(associated_data) * 8 if associated_data else 0
         ct_len_bits = len(ciphertext) * 8
-        len_block = struct.pack('>QQ', aad_len_bits, ct_len_bits)
+        len_block = struct.pack('>QQ', 0, ct_len_bits)
         print(f"  Length block: {len_block.hex()}")
 
         ghash_state = self.utils.xor_bytes(ghash_state, len_block)
@@ -82,7 +69,7 @@ class AES_GCM_Decrypt:
         auth_key = self._generate_auth_key()
 
         initial_counter = nonce + b'\x00\x00\x00\x01'
-        ghash_result = self._ghash(auth_key, None, ciphertext)
+        ghash_result = self._ghash(auth_key, ciphertext)
         tag_keystream = self.utils.encrypt_block(initial_counter)
         expected_tag = self.utils.xor_bytes(ghash_result, tag_keystream)
 
