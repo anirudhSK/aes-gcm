@@ -1,4 +1,5 @@
 import os
+import sys
 from aes_utils import AESUtils
 
 
@@ -52,7 +53,21 @@ class AES_CTR_Decrypt:
 if __name__ == "__main__":
     from aes_ctr_encrypt import AES_CTR_Encrypt
 
-    key = os.urandom(32)
+    if len(sys.argv) < 2:
+        print("Usage: python3 aes_ctr_decrypt.py <key_hex>")
+        print("Example: python3 aes_ctr_decrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+        sys.exit(1)
+
+    key_hex = sys.argv[1]
+    try:
+        key = bytes.fromhex(key_hex)
+        if len(key) != 32:
+            print(f"Error: Key must be 32 bytes (64 hex characters). Got {len(key)} bytes.")
+            sys.exit(1)
+    except ValueError:
+        print("Error: Invalid hex string provided for key.")
+        sys.exit(1)
+
     print(f"AES Key: {key.hex()}")
 
     encryptor = AES_CTR_Encrypt(key)

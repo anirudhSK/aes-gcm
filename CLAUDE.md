@@ -9,21 +9,39 @@ This project contains implementations of AES CTR and AES GCM modes to demonstrat
    pip3 install cryptography
    ```
 
-2. Use Python 3 to run the scripts:
+2. Use Python 3 to run the scripts with a 256-bit key (64 hex characters):
    ```bash
-   python3 comparison.py
+   python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
    ```
 
 ## Files
 
-- `aes_ctr.py` - AES CTR mode implementation (encryption only)
-- `aes_gcm.py` - AES GCM mode implementation (encryption + authentication)
-- `comparison.py` - Side-by-side comparison demonstrating key differences
+- `aes_ctr_encrypt.py` - AES CTR mode encryption implementation
+- `aes_ctr_decrypt.py` - AES CTR mode decryption implementation
+- `aes_gcm_encrypt.py` - AES GCM mode encryption implementation
+- `aes_gcm_decrypt.py` - AES GCM mode decryption implementation
+- `aes_utils.py` - Utility functions for AES operations
 
-## Running the Comparison
+## Running Examples
 
+All scripts require a 256-bit AES key as a 64-character hex string:
+
+### CTR Mode
 ```bash
-python3 comparison.py
+# Encrypt with CTR mode
+python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+
+# Decrypt with CTR mode (includes encryption for demonstration)
+python3 aes_ctr_decrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+```
+
+### GCM Mode
+```bash
+# Encrypt with GCM mode
+python3 aes_gcm_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+
+# Decrypt with GCM mode (includes encryption for demonstration)
+python3 aes_gcm_decrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
 ```
 
 This will show:
