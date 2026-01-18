@@ -67,13 +67,9 @@ class AES_GCM_Encrypt:
         print(f"Plaintext hex: {plaintext.hex()}")
         print(f"Nonce: {nonce.hex()}")
 
-        print(f"\n--- Step 1: Generate Authentication Key ---")
-        auth_key = self._generate_auth_key()
-
+        print(f"\n--- Step 1: CTR Mode Encryption ---")
         initial_counter = nonce + b'\x00\x00\x00\x01'
         print(f"  Initial counter J0: {initial_counter.hex()}")
-
-        print(f"\n--- Step 2: CTR Mode Encryption ---")
         ciphertext = b''
         counter = self.utils.increment_counter_32(initial_counter)
 
@@ -100,7 +96,10 @@ class AES_GCM_Encrypt:
 
         print(f"\n  Final ciphertext: {ciphertext.hex()}")
 
-        print(f"\n--- Step 3: Authentication Tag ---")
+        print(f"\n--- Step 2: Authentication Tag ---")
+        print(f"  Generate Authentication Key:")
+        auth_key = self._generate_auth_key()
+
         ghash_result = self._ghash(auth_key, ciphertext)
 
         tag_keystream = self.utils.encrypt_block(initial_counter)

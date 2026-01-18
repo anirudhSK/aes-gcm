@@ -63,22 +63,8 @@ class AES_GCM_Decrypt:
         print(f"Tag: {auth_tag.hex()}")
         print(f"Nonce: {nonce.hex()}")
 
-        print(f"\n--- Step 1: Verify Authentication ---")
-        auth_key = self._generate_auth_key()
-
+        print(f"\n--- Step 1: CTR Mode Decryption ---")
         initial_counter = nonce + b'\x00\x00\x00\x01'
-        ghash_result = self._ghash(auth_key, ciphertext)
-        tag_keystream = self.utils.encrypt_block(initial_counter)
-        expected_tag = self.utils.xor_bytes(ghash_result, tag_keystream)
-
-        print(f"  Expected tag: {expected_tag.hex()}")
-        print(f"  Received tag: {auth_tag.hex()}")
-
-        if auth_tag != expected_tag:
-            raise ValueError("Authentication verification failed!")
-        print("  ✓ Authentication verified!")
-
-        print(f"\n--- Step 2: CTR Mode Decryption ---")
         plaintext = b''
         counter = self.utils.increment_counter_32(initial_counter)
 
@@ -96,6 +82,22 @@ class AES_GCM_Decrypt:
             counter = self.utils.increment_counter_32(counter)
 
         print(f"  Decrypted plaintext: {plaintext}")
+
+        print(f"\n--- Step 2: Verify Authentication ---")
+        print(f"  Generate Authentication Key:")
+        auth_key = self._generate_auth_key()
+
+        ghash_result = self._ghash(auth_key, ciphertext)
+        tag_keystream = self.utils.encrypt_block(initial_counter)
+        expected_tag = self.utils.xor_bytes(ghash_result, tag_keystream)
+
+        print(f"  Expected tag: {expected_tag.hex()}")
+        print(f"  Received tag: {auth_tag.hex()}")
+
+        if auth_tag != expected_tag:
+            raise ValueError("Authentication verification failed!")
+        print("  ✓ Authentication verified!")
+
         return plaintext
 
 
