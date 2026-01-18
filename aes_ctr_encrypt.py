@@ -55,12 +55,15 @@ class AES_CTR_Encrypt:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python3 aes_ctr_encrypt.py <key_hex>")
-        print("Example: python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+    if len(sys.argv) < 3:
+        print("Usage: python3 aes_ctr_encrypt.py <key_hex> <nonce_hex>")
+        print("Example: python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 00112233445566778899aabbccddeeff")
+        print("Note: CTR mode requires 16-byte (32 hex characters) nonce")
         sys.exit(1)
 
     key_hex = sys.argv[1]
+    nonce_hex = sys.argv[2]
+
     try:
         key = bytes.fromhex(key_hex)
         if len(key) != 32:
@@ -70,13 +73,22 @@ if __name__ == "__main__":
         print("Error: Invalid hex string provided for key.")
         sys.exit(1)
 
+    try:
+        nonce = bytes.fromhex(nonce_hex)
+        if len(nonce) != 16:
+            print(f"Error: Nonce must be 16 bytes (32 hex characters) for CTR mode. Got {len(nonce)} bytes.")
+            sys.exit(1)
+    except ValueError:
+        print("Error: Invalid hex string provided for nonce.")
+        sys.exit(1)
+
     print(f"AES Key: {key.hex()}")
+    print(f"Nonce: {nonce.hex()}")
 
     cipher = AES_CTR_Encrypt(key)
     message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
     print(f"\nOriginal message: {message}")
 
-    nonce, ciphertext = cipher.encrypt(message)
+    _, ciphertext = cipher.encrypt(message, nonce)
     print(f"\nEncryption complete!")
-    print(f"Nonce: {nonce.hex()}")
     print(f"Ciphertext: {ciphertext.hex()}")
