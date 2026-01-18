@@ -58,7 +58,7 @@ if __name__ == "__main__":
     encryptor = AES_CTR_Encrypt(key)
     decryptor = AES_CTR_Decrypt(key)
 
-    message = b"This message spans multiple AES blocks to demonstrate CTR chaining!"
+    message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
     print(f"\nOriginal message: {message}")
 
     nonce, ciphertext = encryptor.encrypt(message)

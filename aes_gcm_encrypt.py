@@ -34,15 +34,13 @@ class AES_GCM_Encrypt:
     def _ghash(self, auth_key, ciphertext):
         print(f"\n=== GHASH COMPUTATION ===")
 
-        padded_ciphertext = self.utils.pad_to_block(ciphertext)
 
         print(f"  Ciphertext: {ciphertext.hex()}")
-        print(f"  Padded ciphertext: {padded_ciphertext.hex()}")
 
         ghash_state = b'\x00' * 16
 
-        for i in range(0, len(padded_ciphertext), 16):
-            ct_block = padded_ciphertext[i:i+16]
+        for i in range(0, len(ciphertext), 16):
+            ct_block = ciphertext[i:i+16]
             print(f"  Processing ciphertext block: {ct_block.hex()}")
 
             ghash_state = self.utils.xor_bytes(ghash_state, ct_block)
@@ -118,7 +116,7 @@ if __name__ == "__main__":
     print(f"AES Key: {key.hex()}")
 
     cipher = AES_GCM_Encrypt(key)
-    message = b"Secret GCM message!"
+    message = b"Secret GCM msg16"
 
     nonce, ciphertext, tag = cipher.encrypt(message)
 

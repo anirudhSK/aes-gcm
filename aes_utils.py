@@ -27,6 +27,3 @@ class AESUtils:
     def xor_bytes(self, a, b):
         return bytes(x ^ y for x, y in zip(a, b))
 
-    def pad_to_block(self, data):
-        padding_len = (16 - len(data) % 16) % 16
-        return data + b'\x00' * padding_len
