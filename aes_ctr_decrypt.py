@@ -1,5 +1,6 @@
 import os
 import sys
+import struct
 from aes_utils import AESUtils
 
 
@@ -23,30 +24,27 @@ class AES_CTR_Decrypt:
         print(f"Ciphertext: {ciphertext.hex()}")
         print(f"Nonce: {nonce.hex()}")
 
-        num_blocks = (len(ciphertext) + self.block_size - 1) // self.block_size
-        print(f"Number of blocks: {num_blocks}")
+        print(f"\n--- Step 1: CTR Mode Decryption ---")
+        initial_counter = nonce + b'\x00\x00\x00\x01'
+
+        num_blocks = (len(ciphertext) + 15) // 16
 
         plaintext = b''
+        counter_value = 2
 
         for i in range(num_blocks):
-            print(f"\n--- Block {i + 1} ---")
-
-            start_idx = i * self.block_size
-            end_idx = min(start_idx + self.block_size, len(ciphertext))
+            start_idx = i * 16
+            end_idx = min(start_idx + 16, len(ciphertext))
             ciphertext_block = ciphertext[start_idx:end_idx]
 
-            print(f"  Ciphertext block: {ciphertext_block.hex()}")
-
-            keystream_block = self._generate_keystream_block(nonce, i + 2)
-
-            plaintext_block = self.utils.xor_bytes(ciphertext_block, keystream_block)
-
-            print(f"  XOR result: {plaintext_block.hex()}")
-            print(f"  Plaintext: {plaintext_block}")
+            counter = nonce + struct.pack('>I', counter_value)
+            keystream = self.utils.encrypt_block(counter)
+            plaintext_block = self.utils.xor_bytes(ciphertext_block, keystream)
 
             plaintext += plaintext_block
+            counter_value += 1
 
-        print(f"\nFinal plaintext: {plaintext}")
+        print(f"  Decrypted plaintext: {plaintext}")
         return plaintext
 
 

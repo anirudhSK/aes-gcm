@@ -1,5 +1,6 @@
 import os
 import sys
+import struct
 from aes_utils import AESUtils
 
 
@@ -26,31 +27,40 @@ class AES_CTR_Encrypt:
         print(f"Plaintext: {plaintext}")
         print(f"Plaintext hex: {plaintext.hex()}")
         print(f"Nonce: {nonce.hex()}")
-        print(f"Plaintext length: {len(plaintext)} bytes")
 
-        num_blocks = (len(plaintext) + self.block_size - 1) // self.block_size
-        print(f"Number of blocks needed: {num_blocks}")
+        print(f"\n--- Step 1: CTR Mode Encryption ---")
+        initial_counter = nonce + b'\x00\x00\x00\x01'
+        print(f"  Initial counter J0: {initial_counter.hex()}")
+
+        num_blocks = (len(plaintext) + 15) // 16
+        print(f"Number of blocks: {num_blocks}")
 
         ciphertext = b''
+        counter_value = 2
 
         for i in range(num_blocks):
-            print(f"\n--- Block {i + 1} ---")
+            print(f"\n  Block {i + 1}:")
 
-            start_idx = i * self.block_size
-            end_idx = min(start_idx + self.block_size, len(plaintext))
+            start_idx = i * 16
+            end_idx = min(start_idx + 16, len(plaintext))
             plaintext_block = plaintext[start_idx:end_idx]
 
-            print(f"  Plaintext block: {plaintext_block.hex()}")
+            print(f"    Plaintext block: {plaintext_block.hex()}")
 
-            keystream_block = self._generate_keystream_block(nonce, i + 2)
+            counter = nonce + struct.pack('>I', counter_value)
+            print(f"    Counter: {counter.hex()}")
 
-            ciphertext_block = self.utils.xor_bytes(plaintext_block, keystream_block)
+            keystream = self.utils.encrypt_block(counter)
+            print(f"    Keystream: {keystream.hex()}")
 
-            print(f"  XOR result: {ciphertext_block.hex()}")
+            ciphertext_block = self.utils.xor_bytes(plaintext_block, keystream)
+
+            print(f"    Ciphertext block: {ciphertext_block.hex()}")
 
             ciphertext += ciphertext_block
+            counter_value += 1
 
-        print(f"\nFinal ciphertext: {ciphertext.hex()}")
+        print(f"\n  Final ciphertext: {ciphertext.hex()}")
         return nonce, ciphertext
 
 
@@ -87,7 +97,6 @@ if __name__ == "__main__":
 
     cipher = AES_CTR_Encrypt(key)
     message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
-    print(f"\nOriginal message: {message}")
 
     _, ciphertext = cipher.encrypt(message, nonce)
     print(f"\nEncryption complete!")
