@@ -58,9 +58,9 @@ class AES_GCM_Encrypt:
         print(f"  Final GHASH: {ghash_state.hex()}")
         return ghash_state
 
-    def encrypt(self, plaintext, nonce=None):
+    def encrypt(self, plaintext, nonce):
         if nonce is None:
-            nonce = os.urandom(12)
+            raise ValueError("Nonce must be provided")
 
         print(f"\n=== GCM ENCRYPTION PROCESS ===")
         print(f"Plaintext: {plaintext}")

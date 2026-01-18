@@ -9,10 +9,10 @@ This project contains implementations of AES CTR and AES GCM modes to demonstrat
    pip3 install cryptography
    ```
 
-2. Use Python 3 to run the scripts with a 256-bit key and nonce:
+2. Use Python 3 to run the scripts with a 256-bit key and 12-byte nonce:
    ```bash
-   # CTR mode (16-byte nonce)
-   python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 00112233445566778899aabbccddeeff
+   # CTR mode (12-byte nonce)
+   python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 001122334455667788990011
 
    # GCM mode (12-byte nonce)
    python3 aes_gcm_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 001122334455667788990011
@@ -28,12 +28,12 @@ This project contains implementations of AES CTR and AES GCM modes to demonstrat
 
 ## Running Examples
 
-All scripts require a 256-bit AES key (64 hex characters) and a nonce:
+All scripts require a 256-bit AES key (64 hex characters) and a 12-byte nonce:
 
-### CTR Mode (16-byte nonce)
+### CTR Mode (12-byte nonce)
 ```bash
 # Encrypt with CTR mode
-python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 00112233445566778899aabbccddeeff
+python3 aes_ctr_encrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 001122334455667788990011
 
 # Decrypt with CTR mode (includes encryption for demonstration)
 python3 aes_ctr_decrypt.py 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
@@ -60,6 +60,6 @@ This will show:
 
 1. **Authentication**: CTR has none, GCM includes GMAC
 2. **Output**: CTR returns `(nonce, ciphertext)`, GCM returns `(nonce, ciphertext, tag)`
-3. **Nonce size**: CTR uses 16 bytes, GCM uses 12 bytes
+3. **Nonce size**: Both CTR and GCM use 12 bytes (for uniformity in this implementation)
 4. **Associated data**: Only GCM supports authenticated associated data
 5. **Tampering detection**: Only GCM can detect data modification
