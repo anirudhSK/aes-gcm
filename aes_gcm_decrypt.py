@@ -107,7 +107,7 @@ if __name__ == "__main__":
     encryptor = AES_GCM_Encrypt(key)
     decryptor = AES_GCM_Decrypt(key)
 
-    message = b"Secret GCM msg16"
+    message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
 
     nonce, ciphertext, tag = encryptor.encrypt(message)
     decrypted = decryptor.decrypt(nonce, ciphertext, tag)

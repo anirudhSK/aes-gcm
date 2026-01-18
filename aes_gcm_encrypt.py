@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print(f"AES Key: {key.hex()}")
 
     cipher = AES_GCM_Encrypt(key)
-    message = b"Secret GCM msg16"
+    message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
 
     nonce, ciphertext, tag = cipher.encrypt(message)
 
