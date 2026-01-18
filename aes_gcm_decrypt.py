@@ -126,7 +126,8 @@ if __name__ == "__main__":
 
     message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
 
-    nonce, ciphertext, tag = encryptor.encrypt(message)
+    test_nonce = bytes.fromhex("001122334455667788990011")
+    nonce, ciphertext, tag = encryptor.encrypt(message, test_nonce)
     decrypted = decryptor.decrypt(nonce, ciphertext, tag)
 
     assert message == decrypted

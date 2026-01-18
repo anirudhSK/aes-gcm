@@ -42,7 +42,7 @@ class AES_CTR_Encrypt:
 
             print(f"  Plaintext block: {plaintext_block.hex()}")
 
-            keystream_block = self._generate_keystream_block(nonce, i)
+            keystream_block = self._generate_keystream_block(nonce, i + 2)
 
             ciphertext_block = self.utils.xor_bytes(plaintext_block, keystream_block)
 

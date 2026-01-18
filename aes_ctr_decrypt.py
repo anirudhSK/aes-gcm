@@ -37,7 +37,7 @@ class AES_CTR_Decrypt:
 
             print(f"  Ciphertext block: {ciphertext_block.hex()}")
 
-            keystream_block = self._generate_keystream_block(nonce, i)
+            keystream_block = self._generate_keystream_block(nonce, i + 2)
 
             plaintext_block = self.utils.xor_bytes(ciphertext_block, keystream_block)
 
@@ -76,7 +76,8 @@ if __name__ == "__main__":
     message = b"This message demonstrates CTR mode with exactly 64 byteszzzzzzzz"
     print(f"\nOriginal message: {message}")
 
-    nonce, ciphertext = encryptor.encrypt(message)
+    test_nonce = bytes.fromhex("001122334455667788990011")
+    nonce, ciphertext = encryptor.encrypt(message, test_nonce)
     decrypted = decryptor.decrypt(nonce, ciphertext)
 
     assert message == decrypted
